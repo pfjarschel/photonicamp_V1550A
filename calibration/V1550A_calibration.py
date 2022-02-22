@@ -23,7 +23,7 @@ initial_pwr_dbm = 0.0  # dBm
 initial_pwr_mw = 10.0**(initial_pwr_dbm/10.0)
 v_start = 0.0  # volts
 v_stop = 5.0  # volts
-v_n = 4095  # 4095 for full DAC resolution
+v_n = 4096  # 4096 for full DAC resolution
 volts = np.linspace(v_start, v_stop, v_n)
 pwrs_dbm = np.zeros(v_n)
 pwrs_mw = np.zeros(v_n)
@@ -33,7 +33,6 @@ atts_lin = np.zeros(v_n)
 # Run calibration routine
 for i in range(v_n):
     dac1.apply_voltage(volts[i])
-
     time.sleep(wait)
 
     # Average power meter reading
@@ -56,6 +55,8 @@ for i in range(v_n):
     atts_db[i] = att_db
     atts_lin[i] = att_lin
 
+    print(f"Measured {att_db:.2f} attenuation for {volts[i]:.3f} V.")
+
 # Plot results
 fig, [ax1, ax2] = plt.subplots(1, 2)
 ax1.plot(volts, atts_db)
@@ -71,7 +72,7 @@ fig.tight_layout()
 plt.show()
 
 # Save data
-with open("VL1550A_calibration.csv", 'w') as file:
+with open("VL1550A_calibration_ext.csv", 'w') as file:
     file.write("Voltage (V),Attenuation (dB)\n")
     for i in range(v_n):
         file.write(f"{volts[i]:.3f},{atts_db[i]:.2f}\n")

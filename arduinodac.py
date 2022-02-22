@@ -26,7 +26,10 @@ class ArduinoDAC():
         print("Serial communication established!")
 
     def __del__(self):
-        self.ser.close()
+        try:
+            self.ser.close()
+        except:
+            pass
         print("Serial communication ended.")
 
     # Function to convert volts to uint16 (12 bit)
