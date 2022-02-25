@@ -6,19 +6,18 @@ from arduinodac import ArduinoDAC as DAC
 from olp55 import OLP55
 
 # Create objects and open communication
-dac1 = DAC("/dev/ttyACM0")
+dac1 = DAC()
+# dac1.connect_serial("/dev/ttyACM0")
+dac1.connect_ethernet("192.168.0.141")
 pm = OLP55()
-pm.connect("/dev/ttyACM1")
+pm.connect("/dev/ttyACM0")
 
 # Apply initial voltage
 dac1.apply_voltage(0.0)
 
-# Suppress DAC replies (faster)
-dac1.set_reply(False)
-
 # Prepare calibration loop
-wait = 0.1  # seconds, mainly for PM response
-pm_int_time = 0.5  # seconds
+wait = 0.5  # seconds, mainly for PM response
+pm_int_time = 1.0  # seconds
 initial_pwr_dbm = 0.0  # dBm
 initial_pwr_mw = 10.0**(initial_pwr_dbm/10.0)
 v_start = 0.0  # volts
@@ -72,7 +71,7 @@ fig.tight_layout()
 plt.show()
 
 # Save data
-with open("VL1550A_calibration_ext.csv", 'w') as file:
+with open("VL1550A_calibration_eth_slow.csv", 'w') as file:
     file.write("Voltage (V),Attenuation (dB)\n")
     for i in range(v_n):
         file.write(f"{volts[i]:.3f},{atts_db[i]:.2f}\n")

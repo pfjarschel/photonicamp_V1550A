@@ -7,14 +7,15 @@ import numpy as np
 
 class V1550A():
     
-    def __init__(self, addr, use_cal_file=True):
+    def __init__(self, use_cal_file=True): 
+        self.usbaddr = ""
+        self.ipaddr = ""
+        self.ipport = 80
+
+        self.dac = ArduinoDAC()
+        
         self.file_path = os.path.dirname(os.path.realpath(__file__))
-        self.calfile_path = f"{self.file_path}/calibration/VL1550A_calibration_smooth.csv"
-        
-        self.addr = addr
-        self.dac = ArduinoDAC(addr)
-        self.dac.set_reply(False)
-        
+        self.calfile_path = f"{self.file_path}/calibration/VL1550A_calibration.csv"
         self.cal_x = []
         self.cal_y = []
         self.calOK = False
@@ -24,18 +25,31 @@ class V1550A():
             self.cal_y = data[:, 1]
             self.calOK = True
         self.use_cal_file = use_cal_file
-        
-        print("Thorlabs V1550A ready")
     
     def __del__(self):
         pass
+
+    def connect_ethernet(self, ip, port=80):
+        self.ipaddr = ip
+        self.ipport = port
+        self.dac.connect_ethernet(ip, port)
+        if self.dac.ethOK:
+            print("Thorlabs V1550A ethernet communications ready")
+
+    def connect_usb(self, addr):
+        self.usbaddr = addr
+        self.dac.connect_serial(addr)
+        if self.dac.serialOK:
+            print("Thorlabs V1550A serial communications ready")
     
     def approximate_voltage(self, att):
-        volt = ((att + 0.166331)/0.063457)**(1/3.718712)
-        return volt
+        vs = np.linspace(0.0, 5.0, 4096)
+        all_atts = -7.30786E-03*vs**6 + 7.58028E-02*vs**5 - 2.31257E-01*vs**4 + 4.22539E-01*vs**3 - 3.14100E-01*vs**2 + 8.67714E-02*vs - 5.58401E-03
+        idx = np.abs(att - all_atts).argmin()
+        return vs[idx]
 
     def approximate_attenuation(self, v):
-        att = 0.063457*(v**3.718712) - 0.166331
+        att = -7.30786E-03*v**6 + 7.58028E-02*v**5 - 2.31257E-01*v**4 + 4.22539E-01*v**3 - 3.14100E-01*v**2 + 8.67714E-02*v - 5.58401E-03
         return att
     
     def calibrated_voltage(self, att):

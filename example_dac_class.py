@@ -3,16 +3,17 @@ import time
 from arduinodac import ArduinoDAC as DAC
 
 # Create object and open communication
-dac1 = DAC("/dev/ttyACM0")
+dac1 = DAC()
+
+# Connect via ethernet or USB
+dac1.connect_ethernet("192.168.0.141")
+dac1.connect_serial("/dev/ttyACM0")
 
 # Apply initial voltage
 dac1.apply_voltage(0)
 
 # Wait a little
 time.sleep(1)
-
-# Suppress replies (faster)
-dac1.set_reply(False)
 
 # Apply ramp voltage
 v = 0.0

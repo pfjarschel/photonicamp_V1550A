@@ -1,1 +1,1 @@
-Code files to control Thorlabs V1550A optical attenuator via Arduino (and Python).
+Code files to control Thorlabs V1550A optical attenuator via Arduino (and Python), using either Ethernet or USB (serial).
